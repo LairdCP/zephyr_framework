@@ -169,14 +169,14 @@ BaseType_t FwkMsg_CallbackCreateAndSend(FwkId_t TxId, FwkId_t RxId,
 	return result;
 }
 
-BaseType_t FwkMsg_FilteredTargettedSend(FwkMsg_t *pMsg, FwkId_t *TargetID,
+BaseType_t FwkMsg_FilteredTargetedSend(FwkMsg_t *pMsg, FwkId_t *TargetID,
 					size_t MsgSize)
 {
 	BaseType_t result;
 
 	if (TargetID == NULL) {
 #ifdef CONFIG_FILTER
-		/* With filtering, send targetted message to filter */
+		/* With filtering, send targeted message to filter */
 		pMsg->header.rxId = FWK_ID_EVENT_FILTER;
 		result = Framework_Send(FWK_ID_EVENT_FILTER, pMsg);
 #else
@@ -185,7 +185,7 @@ BaseType_t FwkMsg_FilteredTargettedSend(FwkMsg_t *pMsg, FwkId_t *TargetID,
 		result = Framework_Broadcast(pMsg, MsgSize);
 #endif
 	} else {
-		/* Targetted message, send only to target */
+		/* Targeted message, send only to target */
 		pMsg->header.rxId = *TargetID;
 		result = Framework_Send(*TargetID, pMsg);
 	}

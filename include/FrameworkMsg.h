@@ -153,18 +153,18 @@ BaseType_t FwkMsg_CallbackCreateAndSend(FwkId_t TxId, FwkId_t RxId,
 					uint32_t CallbackData);
 
 /**
- * @brief Sends a targetted framework message to a specific target or if no
+ * @brief Sends a targeted framework message to a specific target or if no
  * target is provided, the event filter (or broadcast if event filter is not
  * enabled)
  *
  * @param pMsg pointer to a framework message
- * @param TargetID pointer to target if sending a targetted message, NULL
+ * @param TargetID pointer to target if sending a targeted message, NULL
  * otherwise (for broadcast/filter target)
  * @param MsgSize size (in bytes) of message
  *
  * @retval FWK_SUCCESS or FWK_ERROR
  */
-BaseType_t FwkMsg_FilteredTargettedSend(FwkMsg_t *pMsg, FwkId_t *TargetID,
+BaseType_t FwkMsg_FilteredTargetedSend(FwkMsg_t *pMsg, FwkId_t *TargetID,
 					size_t MsgSize);
 
 
