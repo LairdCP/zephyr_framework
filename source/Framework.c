@@ -34,6 +34,16 @@ typedef struct MsgTaskArrayEntry {
 	bool inUse;
 } MsgTaskArrayEntry_t;
 
+/* When generating IDs the total number is known. */
+#ifdef CONFIG_FWK_AUTO_GENERATE_FILES
+#define MAX_MSG_RECEIVERS __FRAMEWORK_MAX_MSG_RECEIVERS
+#else
+#define MAX_MSG_RECEIVERS CONFIG_FWK_MAX_MSG_RECEIVERS
+#endif
+
+/* Zero isn't allowed as a valid message code */
+BUILD_ASSERT(FMC_INVALID == 0, "Invalid framework message code configuration");
+
 /******************************************************************************/
 /* Local Function Prototypes                                                  */
 /******************************************************************************/
@@ -41,7 +51,7 @@ static int Framework_Initialize(const struct device *device);
 
 static void PeriodicTimerCallbackIsr(struct k_timer *pArg);
 
-static MsgTaskArrayEntry_t msgTaskRegistry[CONFIG_FWK_MAX_MSG_RECEIVERS];
+static MsgTaskArrayEntry_t msgTaskRegistry[MAX_MSG_RECEIVERS];
 
 /******************************************************************************/
 /* Global Function Definitions                                                */
@@ -51,8 +61,8 @@ SYS_INIT(Framework_Initialize, POST_KERNEL, 0);
 void Framework_RegisterReceiver(FwkMsgReceiver_t *pRxer)
 {
 	FRAMEWORK_ASSERT(pRxer != NULL);
-	FRAMEWORK_ASSERT(pRxer->id < CONFIG_FWK_MAX_MSG_RECEIVERS);
-	if (pRxer->id >= CONFIG_FWK_MAX_MSG_RECEIVERS) {
+	FRAMEWORK_ASSERT(pRxer->id < MAX_MSG_RECEIVERS);
+	if (pRxer->id >= MAX_MSG_RECEIVERS) {
 		return;
 	}
 
@@ -84,7 +94,7 @@ BaseType_t Framework_Send(FwkId_t RxId, FwkMsg_t *pMsg)
 	if (pMsg == NULL) {
 		return result;
 	}
-	if (RxId >= CONFIG_FWK_MAX_MSG_RECEIVERS) {
+	if (RxId >= MAX_MSG_RECEIVERS) {
 		return result;
 	}
 	if (!msgTaskRegistry[RxId].inUse) {
@@ -108,7 +118,7 @@ BaseType_t Framework_Unicast(FwkMsg_t *pMsg)
 	}
 
 	uint32_t i;
-	for (i = FWK_ID_APP_START; i < CONFIG_FWK_MAX_MSG_RECEIVERS; i++) {
+	for (i = FWK_ID_APP_START; i < MAX_MSG_RECEIVERS; i++) {
 		FwkMsgReceiver_t *pMsgRxer = msgTaskRegistry[i].pMsgReceiver;
 
 		if (pMsgRxer != NULL && pMsgRxer->pMsgDispatcher != NULL) {
@@ -144,7 +154,7 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 #endif
 
 	uint32_t i;
-	for (i = FWK_ID_APP_START; i < CONFIG_FWK_MAX_MSG_RECEIVERS; i++) {
+	for (i = FWK_ID_APP_START; i < MAX_MSG_RECEIVERS; i++) {
 		FwkMsgReceiver_t *pMsgRxer = msgTaskRegistry[i].pMsgReceiver;
 
 		if (pMsgRxer != NULL && pMsgRxer->pMsgDispatcher != NULL) {
@@ -281,7 +291,7 @@ void Framework_MsgReceiver(FwkMsgReceiver_t *pRxer)
 
 BaseType_t Framework_QueueIsEmpty(FwkId_t RxId)
 {
-	if (RxId >= CONFIG_FWK_MAX_MSG_RECEIVERS) {
+	if (RxId >= MAX_MSG_RECEIVERS) {
 		return 1;
 	}
 	if (!msgTaskRegistry[RxId].inUse) {
@@ -294,7 +304,7 @@ BaseType_t Framework_QueueIsEmpty(FwkId_t RxId)
 
 size_t Framework_Flush(FwkId_t RxId)
 {
-	if (RxId >= CONFIG_FWK_MAX_MSG_RECEIVERS) {
+	if (RxId >= MAX_MSG_RECEIVERS) {
 		return 0;
 	}
 	if (!msgTaskRegistry[RxId].inUse) {

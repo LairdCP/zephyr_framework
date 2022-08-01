@@ -14,7 +14,9 @@ extern "C" {
 /* Global Constants, Macros and Type Definitions                              */
 /******************************************************************************/
 enum FwkMsgCodeEnum {
-        /* The first application specific message should be assigned the value
-         * FMC_APPLICATION_SPECIFIC_START. There are codes reserved by
-	 * framework.
-         */
+	/* Message codes required by framework */
+	FMC_INVALID = 0,
+	FMC_PERIODIC,
+	FMC_SOFTWARE_RESET,
+
+	/* Application specific */

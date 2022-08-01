@@ -14,6 +14,6 @@ extern "C" {
 /* Global Constants, Macros and Type Definitions                              */
 /******************************************************************************/
 enum FwkIdEnum {
-        /* Reserved for framework (DO NOT DELETE) */
-        __FWK_ID_RESERVED = FWK_ID_RESERVED,
+	/* Reserved for framework (DO NOT DELETE) */
+	__FWK_ID_RESERVED = FWK_ID_RESERVED,
 

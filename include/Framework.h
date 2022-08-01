@@ -63,6 +63,22 @@ typedef uint8_t FwkId_t;
 /* Zephyr kernel time base is ms, @ref K_NO_WAIT, @ref K_FOREVER */
 #define TickType_t k_timeout_t
 
+#ifndef CONFIG_FWK_AUTO_GENERATE_FILES
+/* Framework Message Codes (FMC)
+ * Application specific codes are defined in config/FrameworkMsgCodes.h.
+ */
+/* clang-format off */
+#define FMC_INVALID                    0
+#define FMC_PERIODIC                   1
+#define FMC_SOFTWARE_RESET             2
+#define FMC_WATCHDOG_CHALLENGE         3
+#define FMC_WATCHDOG_RESPONSE          4
+#define FMC_ATTR_CHANGED               5
+#define FMC_FACTORY_RESET              6
+#define FMC_APPLICATION_SPECIFIC_START 8
+/* clang-format on */
+#endif
+
 enum FwkStatusEnum {
 	FWK_SUCCESS = 0,
 	FWK_ERROR,

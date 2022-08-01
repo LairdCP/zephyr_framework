@@ -75,9 +75,9 @@ config BUFFER_POOL_SHELL
 config FWK_AUTO_GENERATE_FILES
 	bool "Generate ID/message file automatically"
 	help
-	  Automatically generates files for IDs and messages that can be
-	  included in projects containing all of the framework IDs and messages
-	  which can come from multiple sources/components. Individual projects
+	  Automatically generates files for IDs and messages.
+	  Allows framework IDs and messages to originate from
+	  multiple sources/components. Individual projects
 	  must configure the FWK_ID_FILE_LIST global property list and
 	  FWK_MSG_FILE_LIST global property list from their CMake file (using
 	  set_property() to append) which must contain lists of files which then
