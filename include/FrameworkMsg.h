@@ -122,7 +122,7 @@ BaseType_t FwkMsg_UnicastCreateAndSend(FwkId_t TxId, FwkMsgCode_t Code);
 BaseType_t FwkMsg_CreateAndBroadcast(FwkId_t TxId, FwkMsgCode_t Code);
 
 /**
- * @brief Swaps RxId and txId, changes messsage code, and then sends using
+ * @brief Swaps rxId and txId, changes message code, and then sends using
  * Framework_Send.
  *
  * @note Often used with DISPATCH_DO_NOT_FREE.
