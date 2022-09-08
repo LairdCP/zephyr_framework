@@ -167,7 +167,7 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 			 * then create a copy of the message and place on the queue. */
 			if (msgHandler != NULL) {
 				FwkMsg_t *pNewMsg =
-					(FwkMsg_t *)BufferPool_Take(MsgSize);
+					(FwkMsg_t *)BufferPool_TryToTake(MsgSize, __func__);
 				if (pNewMsg != NULL) {
 					memcpy(pNewMsg, pMsg, MsgSize);
 					pNewMsg->header.rxId = pMsgRxer->id;
@@ -350,7 +350,8 @@ static void PeriodicTimerCallbackIsr(struct k_timer *pArg)
 	FwkMsgTask_t *pMsgTask =
 		(FwkMsgTask_t *)CONTAINER_OF(pArg, FwkMsgTask_t, timer);
 
-	FwkMsg_t *pMsg = (FwkMsg_t *)BufferPool_Take(sizeof(FwkMsg_t));
+	FwkMsg_t *pMsg =
+		(FwkMsg_t *)BufferPool_TryToTake(sizeof(FwkMsg_t), __func__);
 	if (pMsg != NULL) {
 		pMsg->header.msgCode = FMC_PERIODIC;
 		pMsg->header.txId = pMsgTask->rxer.id;

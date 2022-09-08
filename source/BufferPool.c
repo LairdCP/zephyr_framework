@@ -165,6 +165,8 @@ static void TakeFailStatHandler(size_t size)
 {
 	bps.take_failures += 1;
 	bps.last_fail_size = size;
+	bps.min_space_available =
+		MIN(bps.min_space_available, (bps.space_available - size));
 }
 
 static void GiveStatHandler(struct bph *bph)

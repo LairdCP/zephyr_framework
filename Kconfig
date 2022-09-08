@@ -53,13 +53,14 @@ config FWK_MAX_MSG_RECEIVERS
 
 config BUFFER_POOL_SIZE
 	int "Zephyr heap used by the framework"
-	default 4096
+	default 1024
 
 config BUFFER_POOL_STATS
 	bool "Enable buffer pool statistics"
 
 config BUFFER_POOL_WINDOW_SIZE
 	int "Number of entries in stats of recently used sizes"
+	depends on BUFFER_POOL_STATS
 	default 0
 	help
 	  Requires 2 bytes per entry
@@ -71,6 +72,7 @@ config BUFFER_POOL_CHECK_DOUBLE_FREE
 
 config BUFFER_POOL_SHELL
 	bool "Enable Buffer Pool Shell"
+	select BUFFER_POOL_STATS
 
 config FWK_AUTO_GENERATE_FILES
 	bool "Generate ID/message file automatically"
