@@ -1,8 +1,8 @@
 /**
  * @file FrameworkStubs.c
- * @brief Weak implentations for functions required by framework.
+ * @brief Weak implementations for functions required by framework.
  *
- * Copyright (c) 2020 Laird Connectivity
+ * Copyright (c) 2020-2022 Laird Connectivity
  *
  * SPDX-License-Identifier: Apache-2.0
  */
