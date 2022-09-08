@@ -23,10 +23,6 @@ if(NOT DEFINED FWK_MSG_FILE_LIST)
     message(FATAL_ERROR "FWK_MSG_FILE_LIST variable is not set, this must contain the input file list of framework msgcodes")
 endif()
 
-if(NOT DEFINED FWK_TYPE_FILE_LIST)
-    message(WARNING "FWK_TYPE_FILE_LIST variable is not set, this should contain the input file list of framework types (if needed)")
-endif()
-
 # Setup variables for framework ID/message generation
 set(FWK_ID_READ_LIST "")
 set(FWK_ID_VAR_LIST "")
