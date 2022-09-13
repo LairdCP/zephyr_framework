@@ -49,6 +49,7 @@ config FWK_RESET_DELAY_MS
 
 config FWK_MAX_MSG_RECEIVERS
 	int "The maximum number of messages receivers"
+	depends on !FWK_AUTO_GENERATE_FILES
 	default 4
 
 config BUFFER_POOL_SIZE
