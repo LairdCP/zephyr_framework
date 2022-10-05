@@ -2,7 +2,7 @@
  * @file BufferPool.c
  * @brief
  *
- * Copyright (c) 2021 Laird Connectivity
+ * Copyright (c) 2021-2022 Laird Connectivity
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -112,6 +112,12 @@ void *BufferPool_Take(size_t size)
 void BufferPool_Free(void *pBuffer)
 {
 	uint8_t *p = pBuffer;
+
+	if (p == NULL) {
+		LOG_ERR("Attempt to free NULL buffer");
+		return;
+	}
+
 	p -= BPH_SIZE;
 
 #ifdef CONFIG_BUFFER_POOL_STATS
