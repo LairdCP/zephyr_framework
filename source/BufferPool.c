@@ -81,6 +81,7 @@ void *BufferPool_TryToTakeTimeout(size_t size, k_timeout_t timeout,
 #endif
 		return p + BPH_SIZE;
 	} else {
+		/* A timeout can occur even when there is space available. */
 		LOG_WRN("Allocate failure size: %d context: %s", size, context);
 #ifdef CONFIG_BUFFER_POOL_STATS
 		TakeFailStatHandler(size);
@@ -127,17 +128,18 @@ void BufferPool_Free(void *pBuffer)
 	k_heap_free(&buffer_pool, p);
 }
 
-struct bp_stats *BufferPool_GetStats(uint8_t index)
+int BufferPool_GetStats(uint8_t index, struct bp_stats *stats)
 {
-	struct bp_stats *p = NULL;
-
 #ifdef CONFIG_BUFFER_POOL_STATS
-	if (index == 0) {
-		p = &bps;
+	if (index == 0 && stats != NULL) {
+		k_spinlock_key_t key = k_spin_lock(&buffer_pool.lock);
+		memcpy(stats, &bps, sizeof(struct bp_stats));
+		k_spin_unlock(&buffer_pool.lock, key);
+		return 0;
 	}
 #endif
 
-	return p;
+	return -EINVAL;
 }
 
 /******************************************************************************/
@@ -146,6 +148,8 @@ struct bp_stats *BufferPool_GetStats(uint8_t index)
 #ifdef CONFIG_BUFFER_POOL_STATS
 static void TakeStatHandler(struct bph *bph, size_t size)
 {
+	k_spinlock_key_t key = k_spin_lock(&buffer_pool.lock);
+
 	bph->size = size;
 #ifdef CONFIG_BUFFER_POOL_CHECK_DOUBLE_FREE
 	bph->ptr = bph;
@@ -165,18 +169,26 @@ static void TakeStatHandler(struct bph *bph, size_t size)
 		bps.windex = 0;
 	}
 #endif
+
+	k_spin_unlock(&buffer_pool.lock, key);
 }
 
 static void TakeFailStatHandler(size_t size)
 {
+	k_spinlock_key_t key = k_spin_lock(&buffer_pool.lock);
+
 	bps.take_failures += 1;
 	bps.last_fail_size = size;
 	bps.min_space_available =
 		MIN(bps.min_space_available, (bps.space_available - size));
+
+	k_spin_unlock(&buffer_pool.lock, key);
 }
 
 static void GiveStatHandler(struct bph *bph)
 {
+	k_spinlock_key_t key = k_spin_lock(&buffer_pool.lock);
+
 #ifdef CONFIG_BUFFER_POOL_CHECK_DOUBLE_FREE
 	if (bph->ptr == 0) {
 		LOG_ERR("Buffer Pool Possible Duplicate Free");
@@ -194,5 +206,7 @@ static void GiveStatHandler(struct bph *bph)
 
 	bps.space_available += bph->size;
 	bps.cur_allocs -= 1;
+
+	k_spin_unlock(&buffer_pool.lock, key);
 }
 #endif

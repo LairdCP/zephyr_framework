@@ -92,10 +92,11 @@ void BufferPool_Free(void *pBuffer);
  * @brief Get pointer to buffer pool statistics
  *
  * @param index of buffer pool.  Only 0 is valid at this time.
+ * @param stats pointer to stats that will be copied into by this function.
  *
- * @return struct bp_stats* NULL if index isn't valid
+ * @return 0 on success, otherwise negative
  */
-struct bp_stats *BufferPool_GetStats(uint8_t index);
+int BufferPool_GetStats(uint8_t index, struct bp_stats *stats);
 
 #ifdef __cplusplus
 }
