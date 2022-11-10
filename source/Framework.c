@@ -264,7 +264,9 @@ void Framework_MsgReceiver(FwkMsgReceiver_t *pRxer)
 {
 	FRAMEWORK_ASSERT(pRxer != NULL);
 
+	DispatchResult_t result = DISPATCH_ERROR;
 	FwkMsg_t *pMsg = NULL;
+
 	BaseType_t status =
 		Framework_Receive(pRxer->pQueue, &pMsg, pRxer->rxBlockTicks);
 
@@ -272,7 +274,7 @@ void Framework_MsgReceiver(FwkMsgReceiver_t *pRxer)
 		FwkMsgHandler_t *msgHandler =
 			pRxer->pMsgDispatcher(pMsg->header.msgCode);
 		if (msgHandler != NULL) {
-			DispatchResult_t result = msgHandler(pRxer, pMsg);
+			result = msgHandler(pRxer, pMsg);
 			if (pMsg->header.options & FWK_MSG_OPTION_CALLBACK) {
 				FwkCallbackMsg_t *pCbMsg =
 					(FwkCallbackMsg_t *)pMsg;
@@ -280,11 +282,12 @@ void Framework_MsgReceiver(FwkMsgReceiver_t *pRxer)
 					pCbMsg->callback(pCbMsg->data);
 				}
 			}
-			if (result != DISPATCH_DO_NOT_FREE) {
-				BufferPool_Free(pMsg);
-			}
 		} else {
-			Framework_UnknownMsgHandler(pRxer, pMsg);
+			result = Framework_UnknownMsgHandler(pRxer, pMsg);
+		}
+
+		if (result != DISPATCH_DO_NOT_FREE) {
+			BufferPool_Free(pMsg);
 		}
 	}
 }
