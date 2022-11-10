@@ -2,7 +2,7 @@
  * @file BufferPool.h
  * @brief Allocates buffers for use with the message framework.
  *
- * Copyright (c) 2021 Laird Connectivity
+ * Copyright (c) 2021-2022 Laird Connectivity
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,7 +16,7 @@ extern "C" {
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-#include <kernel.h>
+#include <zephyr/kernel.h>
 #include <stddef.h>
 
 /******************************************************************************/

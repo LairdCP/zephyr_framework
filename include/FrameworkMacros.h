@@ -3,7 +3,7 @@
  * @brief Macros for commonly performed actions.
  * @note FrameworkMsg.h - Functions underneath the macros.
  *
- * Copyright (c) 2020 Laird Connectivity
+ * Copyright (c) 2020-2022 Laird Connectivity
  *
  * SPDX-License-Identifier: Apache-2.0
  */

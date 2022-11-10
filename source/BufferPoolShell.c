@@ -10,8 +10,8 @@
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-#include <zephyr.h>
-#include <shell/shell.h>
+#include <zephyr/zephyr.h>
+#include <zephyr/shell/shell.h>
 
 #include "BufferPool.h"
 

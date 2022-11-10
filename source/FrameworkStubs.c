@@ -6,13 +6,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(framework_stubs, CONFIG_FRAMEWORK_LOG_LEVEL);
 
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-#include <sys/reboot.h>
+#include <zephyr/sys/reboot.h>
 
 #include "Framework.h"
 

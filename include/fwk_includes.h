@@ -22,9 +22,9 @@ extern "C" {
 #include "FrameworkMsg.h"
 #include "FrameworkMacros.h"
 
-#include "framework_ids.h"
-#include "framework_msgcodes.h"
-#include "framework_types.h"
+#include <framework_ids.h>
+#include <framework_msgcodes.h>
+#include <framework_types.h>
 
 #ifdef __cplusplus
 }

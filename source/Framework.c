@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(framework, CONFIG_FRAMEWORK_LOG_LEVEL);
 
 #define FWK_FNAME "Framework"
@@ -18,7 +18,7 @@ LOG_MODULE_REGISTER(framework, CONFIG_FRAMEWORK_LOG_LEVEL);
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-#include <init.h>
+#include <zephyr/init.h>
 #include <string.h>
 
 #include "BufferPool.h"
