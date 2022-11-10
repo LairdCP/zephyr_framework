@@ -6,6 +6,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <logging/log.h>
+LOG_MODULE_REGISTER(framework_stubs, CONFIG_FRAMEWORK_LOG_LEVEL);
 
 /******************************************************************************/
 /* Includes                                                                   */
@@ -19,6 +21,8 @@ __weak void Framework_AssertionHandler(char *file, int line)
 {
 	UNUSED_PARAMETER(file);
 	UNUSED_PARAMETER(line);
+
+	LOG_ERR("assertion: line: %d %s", line, file);
 }
 
 __weak bool Framework_InterruptContext(void)
@@ -34,8 +38,8 @@ __weak void Framework_SystemReset(void)
 __weak DispatchResult_t Framework_UnknownMsgHandler(FwkMsgReceiver_t *pMsgRxer,
 						    FwkMsg_t *pMsg)
 {
-	UNUSED_PARAMETER(pMsgRxer);
-	UNUSED_PARAMETER(pMsg);
-	FRAMEWORK_ASSERT(FORCED);
+	LOG_WRN("Unknown message %u sent to task: %u", pMsg->header.msgCode,
+		pMsgRxer->id);
+
 	return DISPATCH_ERROR;
 }

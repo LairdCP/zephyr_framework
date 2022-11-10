@@ -10,6 +10,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <logging/log.h>
+LOG_MODULE_REGISTER(framework, CONFIG_FRAMEWORK_LOG_LEVEL);
+
 #define FWK_FNAME "Framework"
 
 /******************************************************************************/
@@ -123,7 +126,8 @@ BaseType_t Framework_Unicast(FwkMsg_t *pMsg)
 
 		if (pMsgRxer != NULL && pMsgRxer->pMsgDispatcher != NULL) {
 			/* The handler isn't called here.
-			 * It is only used to find the task the message belongs to. */
+			 * It is only used to find the task the message belongs to.
+			 */
 			FwkMsgHandler_t *msgHandler =
 				pMsgRxer->pMsgDispatcher(pMsg->header.msgCode);
 
@@ -159,12 +163,14 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 
 		if (pMsgRxer != NULL && pMsgRxer->pMsgDispatcher != NULL) {
 			/* The handler isn't called here.  It is only used to determine
-			 * if a task should receive a broadcast message. */
+			 * if a task should receive a broadcast message.
+			 */
 			FwkMsgHandler_t *msgHandler =
 				pMsgRxer->pMsgDispatcher(pMsg->header.msgCode);
 
 			/* If there is a dispatcher,
-			 * then create a copy of the message and place on the queue. */
+			 * then create a copy of the message and place it on the queue.
+			 */
 			if (msgHandler != NULL) {
 				FwkMsg_t *pNewMsg =
 					(FwkMsg_t *)BufferPool_TryToTake(MsgSize, __func__);
@@ -197,6 +203,8 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 			   TickType_t BlockTicks)
 {
+	BaseType_t status;
+
 	FRAMEWORK_ASSERT(pQueue != NULL);
 	if (ppData == NULL) {
 		FRAMEWORK_ASSERT(false);
@@ -215,10 +223,17 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 	}
 
 	if (Framework_InterruptContext()) {
-		return k_msgq_put(pQueue, ppData, K_NO_WAIT);
+		status = k_msgq_put(pQueue, ppData, K_NO_WAIT);
 	} else {
-		return k_msgq_put(pQueue, ppData, BlockTicks);
+		status = k_msgq_put(pQueue, ppData, BlockTicks);
 	}
+
+	if (status != 0) {
+		LOG_ERR("Unable to queue message to task %u: %d",
+			pMsg->header.rxId, status);
+	}
+
+	return status;
 }
 
 BaseType_t Framework_Receive(FwkQueue_t *pQueue, void *ppData,
