@@ -26,6 +26,7 @@ choice
 
 config FWK_ASSERT_ENABLED
 	bool "Enable Framework assertion"
+	depends on REBOOT
 
 config FWK_ASSERT_ENABLED_USE_ZEPHYR
 	bool "Framework assertion maps to Zephyr assertion"
@@ -47,10 +48,6 @@ config FWK_ASSERT_ON_BROADCAST_FROM_ISR
 	  Broadcast can be time consuming on some processors.
 
 endif # FWK_ASSERT_ENABLED || FWK_ASSERT_ENABLED_USE_ZEPHYR
-
-config FWK_RESET_DELAY_MS
-	int "Delay before software reset (from an assertion or reset message)"
-	default 5000
 
 config FWK_MAX_MSG_RECEIVERS
 	int "The maximum number of messages receivers"
