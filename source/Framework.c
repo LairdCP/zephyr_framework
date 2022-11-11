@@ -204,6 +204,8 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 			   TickType_t BlockTicks)
 {
 	BaseType_t status;
+	FwkMsg_t *pMsg;
+	struct k_msgq_attrs attrs;
 
 	FRAMEWORK_ASSERT(pQueue != NULL);
 	if (ppData == NULL) {
@@ -211,7 +213,7 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 		return FWK_ERROR;
 	}
 
-	FwkMsg_t *pMsg = *((FwkMsg_t **)ppData);
+	pMsg = *((FwkMsg_t **)ppData);
 	if (pMsg == NULL) {
 		FRAMEWORK_ASSERT(false);
 		return FWK_ERROR;
@@ -229,8 +231,10 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 	}
 
 	if (status != 0) {
-		LOG_ERR("Unable to queue message to task %u: %d",
-			pMsg->header.rxId, status);
+		k_msgq_get_attrs(pQueue, &attrs);
+		LOG_ERR("Unable to queue message code %u to task %u (%u/%u): %d",
+			pMsg->header.msgCode, pMsg->header.rxId,
+			attrs.used_msgs, attrs.max_msgs, status);
 	}
 
 	return status;
