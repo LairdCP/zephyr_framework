@@ -146,34 +146,49 @@ BaseType_t Framework_Unicast(FwkMsg_t *pMsg)
 
 int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 {
-	FRAMEWORK_ASSERT(pMsg != NULL);
 	BaseType_t result = FWK_ERROR;
+	FwkMsgReceiver_t *pMsgRxer;
+	FwkMsgHandler_t *msgHandler;
+	FwkMsg_t *pNewMsg;
+	uint32_t i;
+	bool accept = true;
+
 	if (pMsg == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
 		return result;
 	}
 
 #if CONFIG_FWK_ASSERT_ON_BROADCAST_FROM_ISR
 	/* It is technically possible to broadcast from ISR, but isn't recommended. */
-	FRAMEWORK_ASSERT(!Framework_InterruptContext());
+	if (Framework_InterruptContext()) {
+		FRAMEWORK_ASSERT(FORCED);
+		return result;
+	}
 #endif
 
-	uint32_t i;
 	for (i = FWK_ID_APP_START; i < MAX_MSG_RECEIVERS; i++) {
-		FwkMsgReceiver_t *pMsgRxer = msgTaskRegistry[i].pMsgReceiver;
+		pMsgRxer = msgTaskRegistry[i].pMsgReceiver;
 
 		if (pMsgRxer != NULL && pMsgRxer->pMsgDispatcher != NULL) {
 			/* The handler isn't called here.  It is only used to determine
 			 * if a task should receive a broadcast message.
 			 */
-			FwkMsgHandler_t *msgHandler =
-				pMsgRxer->pMsgDispatcher(pMsg->header.msgCode);
+			msgHandler = pMsgRxer->pMsgDispatcher(pMsg->header.msgCode);
 
-			/* If there is a dispatcher,
+			/* In general a task shouldn't have a handler for a message that
+			 * it doesn't want.  However, a task that blocks
+			 * for long periods may want to filter the broadcasts
+			 * that it accepts to keep the size of its message queue small.
+			 */
+			if (pMsgRxer->acceptBroadcast != NULL) {
+				accept = pMsgRxer->acceptBroadcast(pMsg);
+			}
+
+			/* If there is a dispatcher and the task wants the message,
 			 * then create a copy of the message and place it on the queue.
 			 */
-			if (msgHandler != NULL) {
-				FwkMsg_t *pNewMsg =
-					(FwkMsg_t *)BufferPool_TryToTake(MsgSize, __func__);
+			if (msgHandler != NULL && accept) {
+				pNewMsg = BufferPool_TryToTake(MsgSize, __func__);
 				if (pNewMsg != NULL) {
 					memcpy(pNewMsg, pMsg, MsgSize);
 					pNewMsg->header.rxId = pMsgRxer->id;

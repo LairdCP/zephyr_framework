@@ -151,6 +151,7 @@ struct FwkMsgReceiver {
 	FwkQueue_t *pQueue;
 	TickType_t rxBlockTicks;
 	FwkMsgHandler_t *(*pMsgDispatcher)(FwkMsgCode_t msgCode);
+	bool (*acceptBroadcast)(const FwkMsg_t *pMsg);
 };
 
 /**
