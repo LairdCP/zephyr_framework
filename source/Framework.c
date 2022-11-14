@@ -63,9 +63,12 @@ SYS_INIT(Framework_Initialize, POST_KERNEL, 0);
 
 void Framework_RegisterReceiver(FwkMsgReceiver_t *pRxer)
 {
-	FRAMEWORK_ASSERT(pRxer != NULL);
-	FRAMEWORK_ASSERT(pRxer->id < MAX_MSG_RECEIVERS);
+	if (pRxer == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
 	if (pRxer->id >= MAX_MSG_RECEIVERS) {
+		FRAMEWORK_ASSERT(FORCED);
 		return;
 	}
 
@@ -85,22 +88,29 @@ void Framework_RegisterReceiver(FwkMsgReceiver_t *pRxer)
 
 void Framework_RegisterTask(FwkMsgTask_t *pMsgTask)
 {
-	FRAMEWORK_ASSERT(pMsgTask != NULL);
+	if (pMsgTask == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
+
 	Framework_RegisterReceiver(&pMsgTask->rxer);
 	k_timer_init(&pMsgTask->timer, PeriodicTimerCallbackIsr, NULL);
 }
 
 BaseType_t Framework_Send(FwkId_t RxId, FwkMsg_t *pMsg)
 {
-	FRAMEWORK_ASSERT(pMsg != NULL);
 	BaseType_t result = FWK_ERROR;
+
 	if (pMsg == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
 		return result;
 	}
 	if (RxId >= MAX_MSG_RECEIVERS) {
+		FRAMEWORK_ASSERT(FORCED);
 		return result;
 	}
 	if (!msgTaskRegistry[RxId].inUse) {
+		FRAMEWORK_ASSERT(FORCED);
 		return result;
 	}
 
@@ -114,9 +124,10 @@ BaseType_t Framework_Send(FwkId_t RxId, FwkMsg_t *pMsg)
 
 BaseType_t Framework_Unicast(FwkMsg_t *pMsg)
 {
-	FRAMEWORK_ASSERT(pMsg != NULL);
 	BaseType_t result = FWK_ERROR;
+
 	if (pMsg == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
 		return result;
 	}
 
@@ -222,20 +233,24 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 	FwkMsg_t *pMsg;
 	struct k_msgq_attrs attrs;
 
-	FRAMEWORK_ASSERT(pQueue != NULL);
+	if (pQueue == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return FWK_ERROR;
+	}
+
 	if (ppData == NULL) {
-		FRAMEWORK_ASSERT(false);
+		FRAMEWORK_ASSERT(FORCED);
 		return FWK_ERROR;
 	}
 
 	pMsg = *((FwkMsg_t **)ppData);
 	if (pMsg == NULL) {
-		FRAMEWORK_ASSERT(false);
+		FRAMEWORK_ASSERT(FORCED);
 		return FWK_ERROR;
 	}
 
 	if (pMsg->header.msgCode == FMC_INVALID) {
-		FRAMEWORK_ASSERT(false);
+		FRAMEWORK_ASSERT(FORCED);
 		return FWK_ERROR;
 	}
 
@@ -258,9 +273,13 @@ BaseType_t Framework_Queue(FwkQueue_t *pQueue, void *ppData,
 BaseType_t Framework_Receive(FwkQueue_t *pQueue, void *ppData,
 			     TickType_t BlockTicks)
 {
-	FRAMEWORK_ASSERT(pQueue != NULL);
+	if (pQueue == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return FWK_ERROR;
+	}
+
 	if (ppData == NULL) {
-		FRAMEWORK_ASSERT(false);
+		FRAMEWORK_ASSERT(FORCED);
 		return FWK_ERROR;
 	}
 
@@ -273,21 +292,33 @@ BaseType_t Framework_Receive(FwkQueue_t *pQueue, void *ppData,
 
 void Framework_StartTimer(FwkMsgTask_t *pMsgTask)
 {
-	FRAMEWORK_ASSERT(pMsgTask != NULL);
+	if (pMsgTask == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
+
 	k_timer_start(&pMsgTask->timer, pMsgTask->timerDurationTicks,
 		      pMsgTask->timerPeriodTicks);
 }
 
 void Framework_StopTimer(FwkMsgTask_t *pMsgTask)
 {
-	FRAMEWORK_ASSERT(pMsgTask != NULL);
+	if (pMsgTask == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
+
 	k_timer_stop(&pMsgTask->timer);
 }
 
 void Framework_ChangeTimerPeriod(FwkMsgTask_t *pMsgTask, TickType_t Duration,
 				 TickType_t Period)
 {
-	FRAMEWORK_ASSERT(pMsgTask != NULL);
+	if (pMsgTask == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
+
 	pMsgTask->timerDurationTicks = Duration;
 	pMsgTask->timerPeriodTicks = Period;
 	k_timer_start(&pMsgTask->timer, pMsgTask->timerDurationTicks,
@@ -296,7 +327,10 @@ void Framework_ChangeTimerPeriod(FwkMsgTask_t *pMsgTask, TickType_t Duration,
 
 void Framework_MsgReceiver(FwkMsgReceiver_t *pRxer)
 {
-	FRAMEWORK_ASSERT(pRxer != NULL);
+	if (pRxer == NULL) {
+		FRAMEWORK_ASSERT(FORCED);
+		return;
+	}
 
 	DispatchResult_t result = DISPATCH_ERROR;
 	FwkMsg_t *pMsg = NULL;
@@ -393,10 +427,9 @@ static void PeriodicTimerCallbackIsr(struct k_timer *pArg)
 		pMsg->header.msgCode = FMC_PERIODIC;
 		pMsg->header.txId = pMsgTask->rxer.id;
 		pMsg->header.rxId = pMsgTask->rxer.id;
-		BaseType_t result = Framework_Send(pMsgTask->rxer.id, pMsg);
-		if (result != FWK_SUCCESS) {
+		if (Framework_Send(pMsgTask->rxer.id, pMsg) != FWK_SUCCESS) {
 			BufferPool_Free(pMsg);
+			FRAMEWORK_ASSERT(FORCED);
 		}
-		FRAMEWORK_ASSERT(result == FWK_SUCCESS);
 	}
 }
