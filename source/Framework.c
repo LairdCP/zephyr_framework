@@ -162,7 +162,7 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 	FwkMsgHandler_t *msgHandler;
 	FwkMsg_t *pNewMsg;
 	uint32_t i;
-	bool accept = true;
+	bool accept;
 
 	if (pMsg == NULL) {
 		FRAMEWORK_ASSERT(FORCED);
@@ -193,6 +193,8 @@ int Framework_Broadcast(FwkMsg_t *pMsg, size_t MsgSize)
 			 */
 			if (pMsgRxer->acceptBroadcast != NULL) {
 				accept = pMsgRxer->acceptBroadcast(pMsg);
+			} else {
+				accept = true;
 			}
 
 			/* If there is a dispatcher and the task wants the message,
